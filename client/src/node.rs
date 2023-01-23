@@ -14,7 +14,7 @@ use consensus::types::{ExecutionPayload, Header};
 use consensus::ConsensusClient;
 use execution::evm::Evm;
 use execution::rpc::http_rpc::HttpRpc;
-use execution::types::{CallOpts, ExecutionBlock};
+use execution::types::{CallOpts, CallOverrides, ExecutionBlock};
 use execution::ExecutionClient;
 
 use crate::errors::NodeError;
@@ -123,7 +123,7 @@ impl Node {
         Ok(())
     }
 
-    pub async fn call(&self, opts: &CallOpts, block: BlockTag) -> Result<Vec<u8>, NodeError> {
+    pub async fn call(&self, opts: &CallOpts, block: BlockTag, overrides: Option<CallOverrides>) -> Result<Vec<u8>, NodeError> {
         self.check_blocktag_age(&block)?;
 
         let payload = self.get_payload(block)?;
@@ -133,7 +133,7 @@ impl Node {
             &self.payloads,
             self.chain_id(),
         );
-        evm.call(opts).await.map_err(NodeError::ExecutionEvmError)
+        evm.call(opts, overrides).await.map_err(NodeError::ExecutionEvmError)
     }
 
     pub async fn estimate_gas(&self, opts: &CallOpts) -> Result<u64, NodeError> {

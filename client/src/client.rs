@@ -10,7 +10,7 @@ use eyre::{eyre, Result};
 use common::types::BlockTag;
 use config::{CheckpointFallback, Config};
 use consensus::{types::Header, ConsensusClient};
-use execution::types::{CallOpts, ExecutionBlock};
+use execution::types::{CallOpts, CallOverrides, ExecutionBlock};
 use log::{error, info, warn};
 use tokio::spawn;
 use tokio::sync::RwLock;
@@ -341,11 +341,11 @@ impl<DB: Database> Client<DB> {
         }
     }
 
-    pub async fn call(&self, opts: &CallOpts, block: BlockTag) -> Result<Vec<u8>> {
+    pub async fn call(&self, opts: &CallOpts, block: BlockTag, overrides: Option<CallOverrides>) -> Result<Vec<u8>> {
         self.node
             .read()
             .await
-            .call(opts, block)
+            .call(opts, block, overrides)
             .await
             .map_err(|err| err.into())
     }

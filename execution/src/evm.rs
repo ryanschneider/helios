@@ -26,6 +26,7 @@ use crate::{
     rpc::ExecutionRpc,
     types::{Account, CallOpts},
 };
+use crate::types::CallOverrides;
 
 use super::ExecutionClient;
 
@@ -48,8 +49,11 @@ impl<'a, R: ExecutionRpc> Evm<'a, R> {
         Evm { evm, chain_id }
     }
 
-    pub async fn call(&mut self, opts: &CallOpts) -> Result<Vec<u8>, EvmError> {
+    pub async fn call(&mut self, opts: &CallOpts, overrides: Option<CallOverrides>) -> Result<Vec<u8>, EvmError> {
         let account_map = self.batch_fetch_accounts(opts).await?;
+        if let Some(_overrides) = overrides {
+            // apply overrides to account_map
+        }
         self.evm.db.as_mut().unwrap().set_accounts(account_map);
 
         self.evm.env = self.get_env(opts);

@@ -83,6 +83,18 @@ impl fmt::Debug for CallOpts {
     }
 }
 
+#[derive(Deserialize, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct Override {
+    pub balance: Option<U256>,
+    pub nonce: Option<u64>,
+    pub code: Option<Vec<u8>>,
+    pub state: Option<HashMap<H256, U256>>,
+    pub state_diff: Option<HashMap<H256, U256>>,
+}
+
+pub type CallOverrides = HashMap<Address, Override>;
+
 fn bytes_deserialize<'de, D>(deserializer: D) -> Result<Option<Vec<u8>>, D::Error>
 where
     D: serde::Deserializer<'de>,

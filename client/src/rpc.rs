@@ -19,7 +19,7 @@ use common::{
     types::BlockTag,
     utils::{hex_str_to_bytes, u64_to_hex_string},
 };
-use execution::types::{CallOpts, ExecutionBlock};
+use execution::types::{CallOpts, CallOverrides, ExecutionBlock};
 
 pub struct Rpc {
     node: Arc<RwLock<Node>>,
@@ -65,7 +65,7 @@ trait EthRpc {
     #[method(name = "getCode")]
     async fn get_code(&self, address: &str, block: BlockTag) -> Result<String, Error>;
     #[method(name = "call")]
-    async fn call(&self, opts: CallOpts, block: BlockTag) -> Result<String, Error>;
+    async fn call(&self, opts: CallOpts, block: BlockTag, overrides: Option<CallOverrides>) -> Result<String, Error>;
     #[method(name = "estimateGas")]
     async fn estimate_gas(&self, opts: CallOpts) -> Result<String, Error>;
     #[method(name = "chainId")]
@@ -171,11 +171,11 @@ impl EthRpcServer for RpcInner {
         Ok(format!("0x{:}", hex::encode(code)))
     }
 
-    async fn call(&self, opts: CallOpts, block: BlockTag) -> Result<String, Error> {
+    async fn call(&self, opts: CallOpts, block: BlockTag, overrides: Option<CallOverrides>) -> Result<String, Error> {
         let node = self.node.read().await;
 
         let res = node
-            .call(&opts, block)
+            .call(&opts, block, overrides)
             .await
             .map_err(NodeError::to_json_rpsee_error)?;
 
